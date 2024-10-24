@@ -155,6 +155,13 @@ impl text::Editor for () {
         Size::ZERO
     }
 
+    fn tab_width(&self) -> u16 {
+        0
+    }
+
+    fn set_tab_width(&mut self, _tab_width: u16) {
+    }
+
     fn update(
         &mut self,
         _new_bounds: Size,

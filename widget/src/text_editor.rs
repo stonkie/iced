@@ -421,6 +421,17 @@ where
     pub fn cursor_position(&self) -> (usize, usize) {
         self.0.borrow().editor.cursor_position()
     }
+    
+    /// Returns the current tab width of the [`Content`].
+    pub fn tab_width(&self) -> u16 {
+        self.0.borrow().editor.tab_width()
+    }
+
+    /// Sets the tab width of the [`Content`].
+    pub fn set_tab_width(&mut self, tab_width: u16) {
+        let internal = self.0.get_mut();
+        internal.editor.set_tab_width(tab_width);
+    }
 }
 
 impl<Renderer> Default for Content<Renderer>

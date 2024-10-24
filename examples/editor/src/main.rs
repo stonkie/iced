@@ -10,6 +10,9 @@ use std::ffi;
 use std::io;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
+use iced::keyboard::key::Named;
+use iced::keyboard::{Key, Modifiers};
+use iced::widget::text_editor::{KeyPress, Status};
 
 pub fn main() -> iced::Result {
     iced::application("Editor - Iced", Editor::update, Editor::view)
@@ -31,6 +34,7 @@ struct Editor {
 #[derive(Debug, Clone)]
 enum Message {
     ActionPerformed(text_editor::Action),
+    TabWidthSelected(u16),
     ThemeSelected(highlighter::Theme),
     WordWrapToggled(bool),
     NewFile,
@@ -71,6 +75,10 @@ impl Editor {
 
                 self.content.perform(action);
 
+                Task::none()
+            }
+            Message::TabWidthSelected(tab_width) => {
+                self.content.set_tab_width(tab_width);
                 Task::none()
             }
             Message::ThemeSelected(theme) => {
@@ -132,7 +140,7 @@ impl Editor {
                 }
 
                 Task::none()
-            }
+            },
         }
     }
 
@@ -150,6 +158,14 @@ impl Editor {
                 self.is_dirty.then_some(Message::SaveFile)
             ),
             horizontal_space(),
+            text("Tab width: "),
+            pick_list(
+                vec!(2, 4, 8),
+                Some(self.content.tab_width()),
+                Message::TabWidthSelected
+            )
+            .text_size(14)
+            .padding([5, 10]),
             toggler(self.word_wrap)
                 .label("Word Wrap")
                 .on_toggle(Message::WordWrapToggled),
@@ -204,15 +220,29 @@ impl Editor {
                     self.theme,
                 )
                 .key_binding(|key_press| {
-                    match key_press.key.as_ref() {
-                        keyboard::Key::Character("s")
-                            if key_press.modifiers.command() =>
-                        {
-                            Some(text_editor::Binding::Custom(
-                                Message::SaveFile,
-                            ))
-                        }
-                        _ => text_editor::Binding::from_key_press(key_press),
+                    const EMPTY_MODIFIER: Modifiers = Modifiers::empty();
+                    match key_press {
+                        KeyPress { key: Key::Named(Named::Tab), modifiers: EMPTY_MODIFIER, text: _, status: Status::Focused } =>
+                            {
+                                Some(text_editor::Binding::Custom(Message::ActionPerformed(text_editor::Action::Indent)))
+                            },
+                        KeyPress { key: Key::Named(Named::Tab), modifiers: Modifiers::SHIFT, text: _, status: Status::Focused } =>
+                            {
+                                Some(text_editor::Binding::Custom(Message::ActionPerformed(text_editor::Action::Unindent)))
+                            }
+                        _ => 
+                            {
+                                match key_press.key.as_ref() {
+                                    keyboard::Key::Character("s")
+                                        if key_press.modifiers.command() =>
+                                    {
+                                        Some(text_editor::Binding::Custom(
+                                            Message::SaveFile,
+                                        ))
+                                    }
+                                    _ => text_editor::Binding::from_key_press(key_press),
+                                }    
+                            },
                     }
                 }),
             status,

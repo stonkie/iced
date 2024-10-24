@@ -43,6 +43,12 @@ pub trait Editor: Sized + Default {
     /// the [`Editor`].
     fn min_bounds(&self) -> Size;
 
+    /// Returns the current tab width of the [`Content`].
+    fn tab_width(&self) -> u16;
+
+    /// Sets the tab width of the [`Content`].
+    fn set_tab_width(&mut self, tab_width: u16);
+    
     /// Updates the [`Editor`] with some new attributes.
     fn update(
         &mut self,
@@ -87,6 +93,10 @@ pub enum Action {
         /// The amount of lines to scroll.
         lines: i32,
     },
+    /// Add spaces to the beginning of the selected lines by the [`tab_width`] property.
+    Indent,
+    /// Remove spaces at the beginning of the selected lines by the [`tab_width`] property.
+    Unindent,
 }
 
 impl Action {

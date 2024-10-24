@@ -416,6 +416,18 @@ impl editor::Editor for Editor {
                     cosmic_text::Action::Scroll { lines },
                 );
             }
+            Action::Indent => {
+                editor.action(
+                    font_system.raw(),
+                    cosmic_text::Action::Indent,
+                );
+            }
+            Action::Unindent => {
+                editor.action(
+                    font_system.raw(),
+                    cosmic_text::Action::Unindent,
+                );
+            }
         }
 
         self.0 = Some(Arc::new(internal));
@@ -600,6 +612,26 @@ impl editor::Editor for Editor {
 
         internal.editor.shape_as_needed(font_system.raw(), false);
 
+        self.0 = Some(Arc::new(internal));
+    }
+
+    fn tab_width(&self) -> u16 {
+        self.internal().editor.tab_width()
+    }
+
+    fn set_tab_width(&mut self, tab_width: u16) {
+        let mut font_system =
+            text::font_system().write().expect("Write font system");
+
+        let editor =
+            self.0.take().expect("Editor should always be initialized");
+
+        let mut internal = Arc::try_unwrap(editor)
+            .expect("Editor cannot have multiple strong references");
+        
+        let editor = &mut internal.editor;
+
+        editor.set_tab_width(font_system.raw(), tab_width);
         self.0 = Some(Arc::new(internal));
     }
 }
