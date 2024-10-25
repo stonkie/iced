@@ -140,7 +140,7 @@ impl Editor {
                 }
 
                 Task::none()
-            },
+            }
         }
     }
 
@@ -222,13 +222,27 @@ impl Editor {
                 .key_binding(|key_press| {
                     const EMPTY_MODIFIER: Modifiers = Modifiers::empty();
                     match key_press {
-                        KeyPress { key: Key::Named(Named::Tab), modifiers: EMPTY_MODIFIER, text: _, status: Status::Focused } =>
+                        KeyPress {
+                            key: Key::Named(Named::Tab),
+                            modifiers: EMPTY_MODIFIER,
+                            text: _,
+                            status: Status::Focused
+                        } =>
                             {
-                                Some(text_editor::Binding::Custom(Message::ActionPerformed(text_editor::Action::Indent)))
+                                Some(text_editor::Binding::Custom(
+                                    Message::ActionPerformed(text_editor::Action::Indent))
+                                )
                             },
-                        KeyPress { key: Key::Named(Named::Tab), modifiers: Modifiers::SHIFT, text: _, status: Status::Focused } =>
+                        KeyPress {
+                            key: Key::Named(Named::Tab),
+                            modifiers: Modifiers::SHIFT,
+                            text: _,
+                            status: Status::Focused
+                        } =>
                             {
-                                Some(text_editor::Binding::Custom(Message::ActionPerformed(text_editor::Action::Unindent)))
+                                Some(text_editor::Binding::Custom(
+                                    Message::ActionPerformed(text_editor::Action::Unindent))
+                                )
                             }
                         _ => 
                             {
